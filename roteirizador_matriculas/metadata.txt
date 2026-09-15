@@ -1,0 +1,22 @@
+[general]
+name=Roteirizador de Matrículas
+qgisMinimumVersion=3.16
+description=Gera a sequência ótima de visita/vistoria entre matrículas georreferenciadas, por distância em linha reta ou por rede viária.
+version=0.1.0
+author=Vitor Silveira
+email=vitorsilveira20@gmail.com
+
+about=Plugin para roteirização de matrículas em rotinas de vistoria/notificação de campo. Ordena um conjunto de pontos (matrículas) a partir de um ponto de partida, usando o algoritmo de vizinho mais próximo com refinamento 2-opt. Permite calcular a sequência por distância em linha reta ou por menor caminho sobre uma malha viária (rede de ruas), evitando que o agente de campo precise "pular" entre quadras sem seguir um caminho real. Gera uma camada de pontos com a ordem de visita e, opcionalmente, uma camada de linha representando a rota.
+
+tracker=https://github.com/vitorsilveira92/plugin_qgis/issues
+repository=https://github.com/vitorsilveira92/plugin_qgis
+homepage=https://github.com/vitorsilveira92/plugin_qgis
+
+tags=roteirização,rota,matrícula,vistoria,rede viária,network analysis,tsp,vizinho mais próximo
+
+category=Vector
+icon=icons/icon.svg
+experimental=True
+deprecated=False
+
+hasProcessingProvider=no
