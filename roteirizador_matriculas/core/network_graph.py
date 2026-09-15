@@ -35,7 +35,10 @@ def build_network_graph(network_layer, points, crs):
     strategy = QgsNetworkDistanceStrategy()
     director.addStrategy(strategy)
 
-    builder = QgsGraphBuilder(crs)
+    # otfEnabled=False: evita reprojeção/correção elipsoidal "on-the-fly"
+    # dentro do QgsGraphBuilder, que distorceria as distâncias mesmo em CRS
+    # projetado (métrico). Os pontos já chegam aqui no CRS de trabalho.
+    builder = QgsGraphBuilder(crs, False)
     tied_points = director.makeGraph(builder, points)
     graph = builder.graph()
 

@@ -6,10 +6,13 @@ com a ordem de visita e a rota resultante.
 """
 
 import os
+import traceback
 
 from qgis.core import (
+    Qgis,
     QgsCoordinateTransform,
     QgsGeometry,
+    QgsMessageLog,
     QgsPointXY,
     QgsProject,
     QgsWkbTypes,
@@ -23,6 +26,7 @@ from .core.routing_service import DISTANCE_NETWORK, RoutingError, compute_route
 from .roteirizador_dialog import RoteirizadorDialog
 
 PLUGIN_MENU = "&Roteirizador de Matrículas"
+LOG_TAG = "Roteirizador de Matrículas"
 
 
 class RoteirizadorMatriculasPlugin:
@@ -54,13 +58,23 @@ class RoteirizadorMatriculasPlugin:
         try:
             params = self.dialog.get_parameters()
         except ValueError as exc:
+            QgsMessageLog.logMessage(str(exc), LOG_TAG, Qgis.Warning)
             QMessageBox.warning(self.iface.mainWindow(), "Roteirizador de Matrículas", str(exc))
             return
 
         try:
             self._execute(params)
         except (RoutingError, CsvLoadError) as exc:
+            QgsMessageLog.logMessage(str(exc), LOG_TAG, Qgis.Warning)
             QMessageBox.critical(self.iface.mainWindow(), "Roteirizador de Matrículas", str(exc))
+        except Exception as exc:  # noqa: BLE001 - nunca deixar um erro inesperado travar silenciosamente
+            QgsMessageLog.logMessage(traceback.format_exc(), LOG_TAG, Qgis.Critical)
+            QMessageBox.critical(
+                self.iface.mainWindow(),
+                "Roteirizador de Matrículas",
+                "Ocorreu um erro inesperado ao calcular a rota. Detalhes foram registrados no "
+                f"painel de Mensagens do QGIS (aba \"{LOG_TAG}\").\n\n{exc}",
+            )
 
     # -------------------------------------------------------------- lógica
     def _execute(self, params):
@@ -139,6 +153,12 @@ class RoteirizadorMatriculasPlugin:
         project.addMapLayer(route_layer)
 
         total_km = result["total_distance"] / 1000.0
+        QgsMessageLog.logMessage(
+            f"Rota calculada: {len(result['order'])} paradas, {total_km:.2f} km, "
+            f"método={params['distance_method']!r}.",
+            LOG_TAG,
+            Qgis.Info,
+        )
         QMessageBox.information(
             self.iface.mainWindow(),
             "Roteirizador de Matrículas",
